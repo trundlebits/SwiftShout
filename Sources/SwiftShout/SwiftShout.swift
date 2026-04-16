@@ -14,6 +14,7 @@ class SwiftShout {
         // let shoutVersion = shout_version(major, minor, patch)
         // print("Shout version: \(shoutVersion!)")
 
+        // https://www.kodeco.com/7181017-unsafe-swift-using-pointers-and-interacting-with-c/page/4
         print("Major: \(major.pointee)")
         print("Minor: \(minor.pointee)")
         print("Patch: \(patch.pointee)")
