@@ -1,0 +1,5 @@
+module CShout [system] {
+    header "shout.h"
+    link "libshout"
+    export *
+}

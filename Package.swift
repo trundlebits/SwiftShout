@@ -9,18 +9,31 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "SwiftShout",
-            targets: ["SwiftShout"]
+            targets: ["SwiftShout"],
         ),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        // https://theswiftdev.com/how-to-use-c-libraries-in-swift/
+        // https://docs.swift.org/swiftpm/documentation/packagemanagerdocs/examplesystemlibrarypkgconfig/
+        // https://docs.swift.org/swiftpm/documentation/packagemanagerdocs/addingsystemlibrarydependency/
+        .systemLibrary(
+            name: "CShout",
+            pkgConfig: "shout",
+            providers: [
+                .brew(["libshout"]),
+                .apt(["libshout-dev"])
+            ]
+        ),
         .target(
-            name: "SwiftShout"
+            name: "SwiftShout",
+            dependencies: ["CShout"]
         ),
         .testTarget(
             name: "SwiftShoutTests",
-            dependencies: ["SwiftShout"]
+            dependencies: [
+                "SwiftShout",
+                "CShout"
+            ]
         ),
     ],
     swiftLanguageModes: [.v6]
