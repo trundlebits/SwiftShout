@@ -175,6 +175,17 @@ final class ShoutConnection {
         contentLanguage.withCString { shout_set_content_language(handle, $0) }
     }
 
+    // protocol is one of SHOUT_PROTOCOL_xxxx.
+    var `protocol`: UInt32 {
+        shout_get_protocol(handle)
+    }
+
+    // protocol is one of SHOUT_PROTOCOL_xxxx.
+    @discardableResult
+    func setProtocol(_ protocol: UInt32) -> Int32 {
+        shout_set_protocol(handle, `protocol`)
+    }
+
     // nonblocking is one of SHOUT_BLOCKING_xxx. Must be called before open()
     // -- no switching back and forth midstream.
     var nonblocking: UInt32 {

@@ -131,6 +131,14 @@ import CShout
     #expect(connection.contentLanguage == "en-US")
 }
 
+@Test func SetAndGetProtocol() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    let icy = UInt32(SHOUT_PROTOCOL_ICY)
+    #expect(connection.setProtocol(icy) == SHOUTERR_SUCCESS)
+    #expect(connection.protocol == icy)
+}
+
 @Test func SetAndGetNonblocking() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
