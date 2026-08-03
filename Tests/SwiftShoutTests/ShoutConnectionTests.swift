@@ -200,6 +200,21 @@ import CShout
     #expect(connection.send(data) != SHOUTERR_SUCCESS)
 }
 
+@Test func SendRawFailsWhenUnconnected() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    let data: [UInt8] = [0, 1, 2, 3]
+    let result = data.withUnsafeBufferPointer { connection.sendRaw($0.span) }
+    #expect(result < 0)
+}
+
+@Test func SendRawUInt8ArrayOverloadFailsWhenUnconnected() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    let data: [UInt8] = [0, 1, 2, 3]
+    #expect(connection.sendRaw(data) < 0)
+}
+
 // setMetadataUTF8() is deliberately not exercised here: calling it on a
 // handle that has never been through open() segfaults inside libshout
 // itself (verified experimentally -- this precondition isn't documented

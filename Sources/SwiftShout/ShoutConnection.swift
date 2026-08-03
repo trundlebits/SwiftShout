@@ -242,6 +242,20 @@ final class ShoutConnection {
         data.withUnsafeBufferPointer { send($0.span) }
     }
 
+    // shout_send_raw() skips shout_send()'s format-specific timing parsing --
+    // shout.h warns not to use this unless you know what you're doing. Like
+    // shout_send(), it's warn_unused_result in C, so no @discardableResult.
+    // Returns the number of bytes written, or a negative SHOUTERR_xxx on error.
+    func sendRaw(_ data: Span<UInt8>) -> Int {
+        data.withUnsafeBufferPointer { buffer in
+            shout_send_raw(handle, buffer.baseAddress, buffer.count)
+        }
+    }
+
+    func sendRaw(_ data: [UInt8]) -> Int {
+        data.withUnsafeBufferPointer { sendRaw($0.span) }
+    }
+
     func sync() {
         shout_sync(handle)
     }
