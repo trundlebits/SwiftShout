@@ -71,6 +71,23 @@ final class ShoutConnection {
         mount.withCString { shout_set_mount(handle, $0) }
     }
 
+    // key is one of SHOUT_META_xxxx.
+    func meta(_ key: String) -> String? {
+        key.withCString { keyPointer in
+            shout_get_meta(handle, keyPointer).map { String(cString: $0) }
+        }
+    }
+
+    // key is one of SHOUT_META_xxxx.
+    @discardableResult
+    func setMeta(_ key: String, _ value: String) -> Int32 {
+        key.withCString { keyPointer in
+            value.withCString { valuePointer in
+                shout_set_meta(handle, keyPointer, valuePointer)
+            }
+        }
+    }
+
     var contentFormat: (format: UInt32, usage: UInt32) {
         withUnsafeTemporaryAllocation(of: UInt32.self, capacity: 2) { buffer in
             let base = buffer.baseAddress!

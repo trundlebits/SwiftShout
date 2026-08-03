@@ -49,6 +49,19 @@ import CShout
     #expect(connection.mount == "/stream")
 }
 
+@Test func SetAndGetMeta() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setMeta(SHOUT_META_NAME, "My Station") == SHOUTERR_SUCCESS)
+    #expect(connection.meta(SHOUT_META_NAME) == "My Station")
+}
+
+@Test func GetMetaForUnsetKeyIsNil() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.meta(SHOUT_META_GENRE) == nil)
+}
+
 @Test func SetAndGetContentFormat() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
