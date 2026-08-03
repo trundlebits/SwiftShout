@@ -59,3 +59,19 @@ import CShout
     #expect(readBack.format == format)
     #expect(readBack.usage == usage)
 }
+
+@Test func OpenFailsWithoutReachableServer() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    // Port 1 (TCPMUX) on loopback: nothing listens there, so the connect
+    // attempt fails fast (connection refused) instead of needing a real
+    // Icecast server or risking a slow timeout against an unreachable host.
+    connection.setHost("127.0.0.1")
+    connection.setPort(1)
+    connection.setMount("/test")
+    connection.setContentFormat(format: UInt32(SHOUT_FORMAT_OGG), usage: SHOUT_USAGE_AUDIO)
+
+    #expect(connection.open() != SHOUTERR_SUCCESS)
+    #expect(connection.isConnected == false)
+    connection.close()
+}

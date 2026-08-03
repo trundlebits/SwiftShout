@@ -84,4 +84,16 @@ final class ShoutConnection {
     func setContentFormat(format: UInt32, usage: UInt32) -> Int32 {
         shout_set_content_format(handle, format, usage, nil)
     }
+
+    // shout_open() is warn_unused_result in C: ignoring a failed connect
+    // attempt is the kind of bug that attribute exists to catch, so this
+    // deliberately doesn't get @discardableResult like the setters above.
+    func open() -> Int32 {
+        shout_open(handle)
+    }
+
+    @discardableResult
+    func close() -> Int32 {
+        shout_close(handle)
+    }
 }
