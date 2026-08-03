@@ -96,4 +96,32 @@ final class ShoutConnection {
     func close() -> Int32 {
         shout_close(handle)
     }
+
+    // shout_send() is warn_unused_result in C, like shout_open(): a failed
+    // send shouldn't be silently ignorable the way a setter's status can be.
+    func send(_ data: Span<UInt8>) -> Int32 {
+        data.withUnsafeBufferPointer { buffer in
+            shout_send(handle, buffer.baseAddress, buffer.count)
+        }
+    }
+
+    // Array's own `.span` needs a newer OS than this package's macOS 15
+    // floor supports, which would otherwise force every caller holding a
+    // plain [UInt8] through the withUnsafeBufferPointer dance themselves.
+    // This overload does that once, here, instead.
+    func send(_ data: [UInt8]) -> Int32 {
+        data.withUnsafeBufferPointer { send($0.span) }
+    }
+
+    func sync() {
+        shout_sync(handle)
+    }
+
+    var queueLength: Int {
+        Int(shout_queuelen(handle))
+    }
+
+    var delay: Int32 {
+        shout_delay(handle)
+    }
 }

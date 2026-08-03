@@ -75,3 +75,27 @@ import CShout
     #expect(connection.isConnected == false)
     connection.close()
 }
+
+@Test func SendSyncAndQueueIntrospectionWhenUnconnected() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+
+    // Like OpenFailsWithoutReachableServer, this exercises the wrapper's
+    // plumbing (byte marshaling through Span, sync/queue introspection)
+    // without needing a live Icecast server -- sending on an unconnected
+    // handle should fail, not crash.
+    let data: [UInt8] = [0, 1, 2, 3]
+    let result = data.withUnsafeBufferPointer { connection.send($0.span) }
+    #expect(result != SHOUTERR_SUCCESS)
+
+    connection.sync()
+    _ = connection.queueLength
+    _ = connection.delay
+}
+
+@Test func SendUInt8ArrayOverloadFailsWhenUnconnected() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    let data: [UInt8] = [0, 1, 2, 3]
+    #expect(connection.send(data) != SHOUTERR_SUCCESS)
+}
