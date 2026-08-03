@@ -52,38 +52,36 @@ import CShout
 @Test func SetAndGetAudioInfo() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    #expect(connection.setAudioInfo(SHOUT_AI_BITRATE, "128") == SHOUTERR_SUCCESS)
-    #expect(connection.audioInfo(SHOUT_AI_BITRATE) == "128")
+    #expect(connection.setAudioInfo(.bitrate, "128") == SHOUTERR_SUCCESS)
+    #expect(connection.audioInfo(.bitrate) == "128")
 }
 
 @Test func GetAudioInfoForUnsetKeyIsNil() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    #expect(connection.audioInfo(SHOUT_AI_SAMPLERATE) == nil)
+    #expect(connection.audioInfo(.samplerate) == nil)
 }
 
 @Test func SetAndGetMeta() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    #expect(connection.setMeta(SHOUT_META_NAME, "My Station") == SHOUTERR_SUCCESS)
-    #expect(connection.meta(SHOUT_META_NAME) == "My Station")
+    #expect(connection.setMeta(.name, "My Station") == SHOUTERR_SUCCESS)
+    #expect(connection.meta(.name) == "My Station")
 }
 
 @Test func GetMetaForUnsetKeyIsNil() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    #expect(connection.meta(SHOUT_META_GENRE) == nil)
+    #expect(connection.meta(.genre) == nil)
 }
 
 @Test func SetAndGetContentFormat() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    let format = UInt32(SHOUT_FORMAT_OGG)
-    let usage = SHOUT_USAGE_AUDIO
-    #expect(connection.setContentFormat(format: format, usage: usage) == SHOUTERR_SUCCESS)
+    #expect(connection.setContentFormat(format: .ogg, usage: .audio) == SHOUTERR_SUCCESS)
     let readBack = connection.contentFormat
-    #expect(readBack.format == format)
-    #expect(readBack.usage == usage)
+    #expect(readBack.format == .ogg)
+    #expect(readBack.usage == .audio)
 }
 
 @Test func SetAndGetAgent() async throws {
@@ -96,8 +94,8 @@ import CShout
 @Test func SetAndGetTLS() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    #expect(connection.setTLS(SHOUT_TLS_DISABLED) == SHOUTERR_SUCCESS)
-    #expect(connection.tls == SHOUT_TLS_DISABLED)
+    #expect(connection.setTLS(.disabled) == SHOUTERR_SUCCESS)
+    #expect(connection.tls == .disabled)
 }
 
 @Test func SetAndGetCADirectory() async throws {
@@ -147,17 +145,15 @@ import CShout
 @Test func SetAndGetProtocol() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    let icy = UInt32(SHOUT_PROTOCOL_ICY)
-    #expect(connection.setProtocol(icy) == SHOUTERR_SUCCESS)
-    #expect(connection.protocol == icy)
+    #expect(connection.setProtocol(.icy) == SHOUTERR_SUCCESS)
+    #expect(connection.protocol == .icy)
 }
 
 @Test func SetAndGetNonblocking() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
-    let nonblocking = UInt32(SHOUT_BLOCKING_NONE)
-    #expect(connection.setNonblocking(nonblocking) == SHOUTERR_SUCCESS)
-    #expect(connection.nonblocking == nonblocking)
+    #expect(connection.setNonblocking(.none) == SHOUTERR_SUCCESS)
+    #expect(connection.nonblocking == .none)
 }
 
 @Test func OpenFailsWithoutReachableServer() async throws {
@@ -169,7 +165,7 @@ import CShout
     connection.setHost("127.0.0.1")
     connection.setPort(1)
     connection.setMount("/test")
-    connection.setContentFormat(format: UInt32(SHOUT_FORMAT_OGG), usage: SHOUT_USAGE_AUDIO)
+    connection.setContentFormat(format: .ogg, usage: .audio)
 
     #expect(connection.open() != SHOUTERR_SUCCESS)
     #expect(connection.isConnected == false)

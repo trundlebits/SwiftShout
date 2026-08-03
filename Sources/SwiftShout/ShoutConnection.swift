@@ -71,52 +71,48 @@ final class ShoutConnection {
         mount.withCString { shout_set_mount(handle, $0) }
     }
 
-    // key is one of SHOUT_AI_xxxx.
-    func audioInfo(_ key: String) -> String? {
-        key.withCString { keyPointer in
+    func audioInfo(_ key: AudioInfoKey) -> String? {
+        key.rawValue.withCString { keyPointer in
             shout_get_audio_info(handle, keyPointer).map { String(cString: $0) }
         }
     }
 
-    // key is one of SHOUT_AI_xxxx.
     @discardableResult
-    func setAudioInfo(_ key: String, _ value: String) -> Int32 {
-        key.withCString { keyPointer in
+    func setAudioInfo(_ key: AudioInfoKey, _ value: String) -> Int32 {
+        key.rawValue.withCString { keyPointer in
             value.withCString { valuePointer in
                 shout_set_audio_info(handle, keyPointer, valuePointer)
             }
         }
     }
 
-    // key is one of SHOUT_META_xxxx.
-    func meta(_ key: String) -> String? {
-        key.withCString { keyPointer in
+    func meta(_ key: MetaKey) -> String? {
+        key.rawValue.withCString { keyPointer in
             shout_get_meta(handle, keyPointer).map { String(cString: $0) }
         }
     }
 
-    // key is one of SHOUT_META_xxxx.
     @discardableResult
-    func setMeta(_ key: String, _ value: String) -> Int32 {
-        key.withCString { keyPointer in
+    func setMeta(_ key: MetaKey, _ value: String) -> Int32 {
+        key.rawValue.withCString { keyPointer in
             value.withCString { valuePointer in
                 shout_set_meta(handle, keyPointer, valuePointer)
             }
         }
     }
 
-    var contentFormat: (format: UInt32, usage: UInt32) {
+    var contentFormat: (format: ContentFormat, usage: ContentUsage) {
         withUnsafeTemporaryAllocation(of: UInt32.self, capacity: 2) { buffer in
             let base = buffer.baseAddress!
             let _ = shout_get_content_format(handle, base, base + 1, nil)
             let values = buffer.span
-            return (values[0], values[1])
+            return (ContentFormat(rawValue: values[0]), ContentUsage(rawValue: values[1]))
         }
     }
 
     @discardableResult
-    func setContentFormat(format: UInt32, usage: UInt32) -> Int32 {
-        shout_set_content_format(handle, format, usage, nil)
+    func setContentFormat(format: ContentFormat, usage: ContentUsage) -> Int32 {
+        shout_set_content_format(handle, format.rawValue, usage.rawValue, nil)
     }
 
     var agent: String? {
@@ -128,14 +124,13 @@ final class ShoutConnection {
         agent.withCString { shout_set_agent(handle, $0) }
     }
 
-    // mode is one of SHOUT_TLS_xxxx.
-    var tls: Int32 {
-        shout_get_tls(handle)
+    var tls: TLSMode {
+        TLSMode(rawValue: shout_get_tls(handle))
     }
 
     @discardableResult
-    func setTLS(_ mode: Int32) -> Int32 {
-        shout_set_tls(handle, mode)
+    func setTLS(_ mode: TLSMode) -> Int32 {
+        shout_set_tls(handle, mode.rawValue)
     }
 
     var caDirectory: String? {
@@ -192,26 +187,23 @@ final class ShoutConnection {
         contentLanguage.withCString { shout_set_content_language(handle, $0) }
     }
 
-    // protocol is one of SHOUT_PROTOCOL_xxxx.
-    var `protocol`: UInt32 {
-        shout_get_protocol(handle)
-    }
-
-    // protocol is one of SHOUT_PROTOCOL_xxxx.
-    @discardableResult
-    func setProtocol(_ protocol: UInt32) -> Int32 {
-        shout_set_protocol(handle, `protocol`)
-    }
-
-    // nonblocking is one of SHOUT_BLOCKING_xxx. Must be called before open()
-    // -- no switching back and forth midstream.
-    var nonblocking: UInt32 {
-        shout_get_nonblocking(handle)
+    var `protocol`: StreamProtocol {
+        StreamProtocol(rawValue: shout_get_protocol(handle))
     }
 
     @discardableResult
-    func setNonblocking(_ nonblocking: UInt32) -> Int32 {
-        shout_set_nonblocking(handle, nonblocking)
+    func setProtocol(_ protocol: StreamProtocol) -> Int32 {
+        shout_set_protocol(handle, `protocol`.rawValue)
+    }
+
+    // Must be called before open() -- no switching back and forth midstream.
+    var nonblocking: BlockingMode {
+        BlockingMode(rawValue: shout_get_nonblocking(handle))
+    }
+
+    @discardableResult
+    func setNonblocking(_ nonblocking: BlockingMode) -> Int32 {
+        shout_set_nonblocking(handle, nonblocking.rawValue)
     }
 
     // shout_open() is warn_unused_result in C: ignoring a failed connect
