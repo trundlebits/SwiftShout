@@ -124,4 +124,12 @@ final class ShoutConnection {
     var delay: Int32 {
         shout_delay(handle)
     }
+
+    // MP3/AAC streams only. shout_set_metadata_utf8() is warn_unused_result
+    // in C, like shout_open() and shout_send(). Undocumented in shout.h but
+    // verified experimentally: calling this before open() has succeeded
+    // segfaults inside libshout itself -- only call this on an open connection.
+    func setMetadataUTF8(_ metadata: ShoutMetadata) -> Int32 {
+        shout_set_metadata_utf8(handle, metadata.handle)
+    }
 }

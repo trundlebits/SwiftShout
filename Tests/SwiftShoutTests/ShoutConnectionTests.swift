@@ -99,3 +99,9 @@ import CShout
     let data: [UInt8] = [0, 1, 2, 3]
     #expect(connection.send(data) != SHOUTERR_SUCCESS)
 }
+
+// setMetadataUTF8() is deliberately not exercised here: calling it on a
+// handle that has never been through open() segfaults inside libshout
+// itself (verified experimentally -- this precondition isn't documented
+// in shout.h). Covering it needs a real, opened connection, same
+// constraint as OpenFailsWithoutReachableServer above.
