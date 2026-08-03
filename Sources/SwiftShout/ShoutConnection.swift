@@ -71,6 +71,23 @@ final class ShoutConnection {
         mount.withCString { shout_set_mount(handle, $0) }
     }
 
+    // key is one of SHOUT_AI_xxxx.
+    func audioInfo(_ key: String) -> String? {
+        key.withCString { keyPointer in
+            shout_get_audio_info(handle, keyPointer).map { String(cString: $0) }
+        }
+    }
+
+    // key is one of SHOUT_AI_xxxx.
+    @discardableResult
+    func setAudioInfo(_ key: String, _ value: String) -> Int32 {
+        key.withCString { keyPointer in
+            value.withCString { valuePointer in
+                shout_set_audio_info(handle, keyPointer, valuePointer)
+            }
+        }
+    }
+
     // key is one of SHOUT_META_xxxx.
     func meta(_ key: String) -> String? {
         key.withCString { keyPointer in

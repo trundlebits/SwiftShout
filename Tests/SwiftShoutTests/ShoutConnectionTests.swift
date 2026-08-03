@@ -49,6 +49,19 @@ import CShout
     #expect(connection.mount == "/stream")
 }
 
+@Test func SetAndGetAudioInfo() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setAudioInfo(SHOUT_AI_BITRATE, "128") == SHOUTERR_SUCCESS)
+    #expect(connection.audioInfo(SHOUT_AI_BITRATE) == "128")
+}
+
+@Test func GetAudioInfoForUnsetKeyIsNil() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.audioInfo(SHOUT_AI_SAMPLERATE) == nil)
+}
+
 @Test func SetAndGetMeta() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
