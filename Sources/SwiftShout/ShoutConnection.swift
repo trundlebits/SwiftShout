@@ -85,6 +85,90 @@ final class ShoutConnection {
         shout_set_content_format(handle, format, usage, nil)
     }
 
+    var agent: String? {
+        shout_get_agent(handle).map { String(cString: $0) }
+    }
+
+    @discardableResult
+    func setAgent(_ agent: String) -> Int32 {
+        agent.withCString { shout_set_agent(handle, $0) }
+    }
+
+    // mode is one of SHOUT_TLS_xxxx.
+    var tls: Int32 {
+        shout_get_tls(handle)
+    }
+
+    @discardableResult
+    func setTLS(_ mode: Int32) -> Int32 {
+        shout_set_tls(handle, mode)
+    }
+
+    var caDirectory: String? {
+        shout_get_ca_directory(handle).map { String(cString: $0) }
+    }
+
+    @discardableResult
+    func setCADirectory(_ directory: String) -> Int32 {
+        directory.withCString { shout_set_ca_directory(handle, $0) }
+    }
+
+    var caFile: String? {
+        shout_get_ca_file(handle).map { String(cString: $0) }
+    }
+
+    @discardableResult
+    func setCAFile(_ file: String) -> Int32 {
+        file.withCString { shout_set_ca_file(handle, $0) }
+    }
+
+    var allowedCiphers: String? {
+        shout_get_allowed_ciphers(handle).map { String(cString: $0) }
+    }
+
+    @discardableResult
+    func setAllowedCiphers(_ ciphers: String) -> Int32 {
+        ciphers.withCString { shout_set_allowed_ciphers(handle, $0) }
+    }
+
+    var clientCertificate: String? {
+        shout_get_client_certificate(handle).map { String(cString: $0) }
+    }
+
+    @discardableResult
+    func setClientCertificate(_ certificate: String) -> Int32 {
+        certificate.withCString { shout_set_client_certificate(handle, $0) }
+    }
+
+    var isPublic: Bool {
+        shout_get_public(handle) != 0
+    }
+
+    @discardableResult
+    func setPublic(_ isPublic: Bool) -> Int32 {
+        shout_set_public(handle, isPublic ? 1 : 0)
+    }
+
+    var contentLanguage: String? {
+        shout_get_content_language(handle).map { String(cString: $0) }
+    }
+
+    @discardableResult
+    func setContentLanguage(_ contentLanguage: String) -> Int32 {
+        contentLanguage.withCString { shout_set_content_language(handle, $0) }
+    }
+
+    // nonblocking is one of SHOUT_BLOCKING_xxx. Must be called before open()
+    // -- no switching back and forth midstream.
+    var nonblocking: UInt32 {
+        shout_get_nonblocking(handle)
+    }
+
+    @discardableResult
+    func setNonblocking(_ nonblocking: UInt32) -> Int32 {
+        shout_set_nonblocking(handle, nonblocking)
+    }
+
     // shout_open() is warn_unused_result in C: ignoring a failed connect
     // attempt is the kind of bug that attribute exists to catch, so this
     // deliberately doesn't get @discardableResult like the setters above.

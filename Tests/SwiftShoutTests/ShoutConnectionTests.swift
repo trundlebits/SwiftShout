@@ -60,6 +60,72 @@ import CShout
     #expect(readBack.usage == usage)
 }
 
+@Test func SetAndGetAgent() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setAgent("SwiftShout/0.1") == SHOUTERR_SUCCESS)
+    #expect(connection.agent == "SwiftShout/0.1")
+}
+
+@Test func SetAndGetTLS() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setTLS(SHOUT_TLS_DISABLED) == SHOUTERR_SUCCESS)
+    #expect(connection.tls == SHOUT_TLS_DISABLED)
+}
+
+@Test func SetAndGetCADirectory() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setCADirectory("/etc/ssl/certs") == SHOUTERR_SUCCESS)
+    #expect(connection.caDirectory == "/etc/ssl/certs")
+}
+
+@Test func SetAndGetCAFile() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setCAFile("/etc/ssl/cert.pem") == SHOUTERR_SUCCESS)
+    #expect(connection.caFile == "/etc/ssl/cert.pem")
+}
+
+@Test func SetAndGetAllowedCiphers() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setAllowedCiphers("HIGH:!aNULL") == SHOUTERR_SUCCESS)
+    #expect(connection.allowedCiphers == "HIGH:!aNULL")
+}
+
+@Test func SetAndGetClientCertificate() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setClientCertificate("/etc/ssl/client.pem") == SHOUTERR_SUCCESS)
+    #expect(connection.clientCertificate == "/etc/ssl/client.pem")
+}
+
+@Test func SetAndGetPublic() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setPublic(true) == SHOUTERR_SUCCESS)
+    #expect(connection.isPublic == true)
+    #expect(connection.setPublic(false) == SHOUTERR_SUCCESS)
+    #expect(connection.isPublic == false)
+}
+
+@Test func SetAndGetContentLanguage() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.setContentLanguage("en-US") == SHOUTERR_SUCCESS)
+    #expect(connection.contentLanguage == "en-US")
+}
+
+@Test func SetAndGetNonblocking() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    let nonblocking = UInt32(SHOUT_BLOCKING_NONE)
+    #expect(connection.setNonblocking(nonblocking) == SHOUTERR_SUCCESS)
+    #expect(connection.nonblocking == nonblocking)
+}
+
 @Test func OpenFailsWithoutReachableServer() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
