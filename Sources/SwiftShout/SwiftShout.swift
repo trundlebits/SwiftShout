@@ -17,4 +17,13 @@ class SwiftShout {
             print("Patch: \(versions[2])")
         }
     }
+
+    // Shuts down libshout for the whole process -- the counterpart to
+    // shout_init(), same global scope. Not exercised by the test suite:
+    // shout.h says nothing may be called afterwards, and Swift Testing
+    // runs @Test functions in one shared process, so calling this here
+    // would poison every other test sharing it.
+    static func shutdown() {
+        shout_shutdown()
+    }
 }
