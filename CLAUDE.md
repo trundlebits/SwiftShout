@@ -48,3 +48,10 @@ There is no linter configured in this repo.
 - `swiftLanguageModes: [.v6]` in `Package.swift` — this package targets
   Swift 6 language mode, so strict concurrency checking applies to any new
   code.
+
+## Constraints
+- Prefer using `Span` and `MutableSpan` over `UnsafePointer` and
+  `UnsafeMutablePointer`.  Suggest refactoring to use `Span` when an
+  `UnsafePointer` is being used in existing code.
+- Use the tone and format of existing Git commit messages for any new commit
+  messages.
