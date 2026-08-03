@@ -7,3 +7,9 @@ import CShout
     let connection = ShoutConnection()
     #expect(connection != nil)
 }
+
+@Test func FreshConnectionIsUnconnected() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    #expect(connection.isConnected == false)
+}
