@@ -169,7 +169,20 @@ import CShout
 
     #expect(connection.open() != SHOUTERR_SUCCESS)
     #expect(connection.isConnected == false)
-    connection.close()
+    #expect(connection.close() != SHOUTERR_SUCCESS)
+}
+
+@Test func ErrorCodeAndDescriptionAfterFailedOpen() async throws {
+    shout_init()
+    let connection = try #require(ShoutConnection())
+    connection.setHost("127.0.0.1")
+    connection.setPort(1)
+    connection.setMount("/test")
+    connection.setContentFormat(format: .ogg, usage: .audio)
+    _ = connection.open()
+
+    #expect(connection.errorCode != SHOUTERR_SUCCESS)
+    #expect(connection.errorDescription.isEmpty == false)
 }
 
 @Test func SendSyncAndQueueIntrospectionWhenUnconnected() async throws {
