@@ -3,8 +3,8 @@
 
 import CShout
 
-class SwiftShout {
-    init() {
+public class SwiftShout {
+    public init() {
         shout_init()
 
         withUnsafeTemporaryAllocation(of: Int32.self, capacity: 3) { buffer in
@@ -23,7 +23,7 @@ class SwiftShout {
     // shout.h says nothing may be called afterwards, and Swift Testing
     // runs @Test functions in one shared process, so calling this here
     // would poison every other test sharing it.
-    static func shutdown() {
+    public static func shutdown() {
         shout_shutdown()
     }
 }
