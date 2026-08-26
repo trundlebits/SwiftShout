@@ -7,3 +7,9 @@ import Testing
     // Swift Testing Documentation
     // https://swiftpackageindex.com/swiftlang/swift-testing/documentation
 }
+
+@Test func LibshoutVersion() async throws {
+    let version = SwiftShout.libshoutVersion
+    #expect(!version.isEmpty)
+    #expect(version.first?.isNumber == true)   // e.g. "2.4.6"
+}

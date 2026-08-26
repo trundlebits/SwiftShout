@@ -37,6 +37,8 @@ swift test --filter InitSwiftShout   # run a single test by name
 import CShout      // for SHOUTERR_* return codes
 import SwiftShout
 
+print("libshout \(SwiftShout.libshoutVersion)")
+
 guard let connection = ShoutConnection() else {
     fatalError("shout_new() failed")
 }

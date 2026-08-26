@@ -6,16 +6,13 @@ import CShout
 public class SwiftShout {
     public init() {
         shout_init()
+    }
 
-        withUnsafeTemporaryAllocation(of: Int32.self, capacity: 3) { buffer in
-            let base = buffer.baseAddress!
-            let _ = shout_version(base, base + 1, base + 2)
-
-            let versions = buffer.span
-            print("Major: \(versions[0])")
-            print("Minor: \(versions[1])")
-            print("Patch: \(versions[2])")
-        }
+    // libshout's version as one string, e.g. "2.4.6". shout.h documents the
+    // return value as a static string, so it is never null; the int
+    // out-parameters are optional and we don't need them.
+    public static var libshoutVersion: String {
+        String(cString: shout_version(nil, nil, nil))
     }
 
     // Shuts down libshout for the whole process -- the counterpart to
