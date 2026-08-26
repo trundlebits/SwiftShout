@@ -38,18 +38,19 @@ import SwiftShout
 
 print("libshout \(SwiftShout.libshoutVersion)")
 
-guard let connection = ShoutConnection() else {
-    fatalError("shout_new() failed")
-}
-
-connection.setHost("icecast.example.com")
-connection.setPort(8000)
-connection.setUser("source")
-connection.setPassword("hackme")
-connection.setMount("/stream")
-connection.setContentFormat(format: .mp3, usage: .audio)
+let configuration = ShoutConfiguration(
+    host: "icecast.example.com",
+    port: 8000,
+    user: "source",
+    password: "hackme",
+    mount: "/stream",
+    format: .mp3
+)
 
 do {
+    let connection = try ShoutConnection(configuration: configuration)
+    defer { connection.close() }
+
     try connection.open()
 
     let mp3Frame: [UInt8] = /* ... */ []
@@ -62,14 +63,17 @@ do {
 } catch let error as ShoutError {
     fatalError("stream failed: \(error)")   // e.g. "Couldn't connect to server"
 }
-
-connection.close()
 ```
 
-Every setter returns the underlying `SHOUTERR_*` code from libshout
-and is `@discardableResult` -- libshout doesn't mark the setters
-`warn_unused_result`, and ignoring a stored-parameter status is
-usually harmless. The actions it *does* mark `warn_unused_result` --
+`ShoutConfiguration` is a `Sendable`, `Equatable` value holding every
+pre-`open()` setting; `ShoutConnection(configuration:)` (or
+`config.apply(to:)` on an existing connection) applies it in one step,
+throwing `ShoutError` if libshout rejects any field. The individual
+setters are still there -- each returns the underlying `SHOUTERR_*`
+code from libshout and is `@discardableResult`, since libshout doesn't
+mark the setters `warn_unused_result` and ignoring a stored-parameter
+status is usually harmless. The actions it *does* mark
+`warn_unused_result` --
 `open()`, `send(_:)`, `sendRaw(_:)`, `setMetadataUTF8(_:)`, and
 `ShoutMetadata.add(name:value:)` -- instead throw `ShoutError`
 (a typed `throws(ShoutError)`), which pairs the `SHOUTERR_*` `Code`
@@ -106,6 +110,10 @@ Settings that libshout expresses as raw integer or string constants
   with `ShoutConnection.setMetadataUTF8(_:)` for MP3/AAC in-stream
   metadata (song/title updates), distinct from the static per-mount
   meta (`SHOUT_META_*`) set on `ShoutConnection` itself.
+- `Sources/SwiftShout/ShoutConfiguration.swift` -- `ShoutConfiguration`,
+  a `Sendable`/`Equatable` value holding every pre-`open()` setting;
+  `apply(to:)` drives the individual setters, and
+  `ShoutConnection(configuration:)` builds a connection from one.
 - `Sources/SwiftShout/ShoutTypes.swift` -- typed wrappers around
   libshout's `SHOUT_*` constant groups.
 - `Sources/SwiftShout/ShoutError.swift` -- `ShoutError`, the typed

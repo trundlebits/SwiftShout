@@ -10,6 +10,17 @@ public final class ShoutConnection {
         self.handle = handle
     }
 
+    // Builds a connection and applies `configuration` to it in one step. Unlike
+    // init?(), a shout_new() failure here surfaces as a thrown `.malloc` rather
+    // than nil, to keep one error channel with `ShoutConfiguration.apply(to:)`.
+    public init(configuration: ShoutConfiguration) throws(ShoutError) {
+        guard let handle = shout_new() else {
+            throw ShoutError(code: .malloc, message: "shout_new() failed")
+        }
+        self.handle = handle
+        try configuration.apply(to: self)
+    }
+
     deinit {
         shout_free(handle)
     }
@@ -213,14 +224,21 @@ public final class ShoutConnection {
         ShoutError(code: ShoutError.Code(rawValue: code), message: errorDescription)
     }
 
+    // Throws unless `code` is SHOUTERR_SUCCESS. Shared by the throwing actions
+    // and by ShoutConfiguration.apply(to:), which drives the plain Int32
+    // setters and needs to turn their status into the same error.
+    func checked(_ code: Int32) throws(ShoutError) {
+        guard code != SHOUTERR_SUCCESS else { return }
+        throw lastError(code)
+    }
+
     // shout_open() is warn_unused_result in C: ignoring a failed connect
     // attempt is the kind of bug that attribute exists to catch, so this
     // throws rather than handing back a status code the caller can drop. In
     // nonblocking mode a thrown `.busy` means "connection in progress, call
     // open() again", not a hard failure.
     public func open() throws(ShoutError) {
-        let result = shout_open(handle)
-        guard result == SHOUTERR_SUCCESS else { throw lastError(result) }
+        try checked(shout_open(handle))
     }
 
     @discardableResult
@@ -237,10 +255,9 @@ public final class ShoutConnection {
     // rethrows (which withUnsafeBufferPointer is) doesn't propagate a typed
     // throws, so a throwing closure here would erase ShoutError to any Error.
     public func send(_ data: Span<UInt8>) throws(ShoutError) {
-        let result = data.withUnsafeBufferPointer { buffer in
+        try checked(data.withUnsafeBufferPointer { buffer in
             shout_send(handle, buffer.baseAddress, buffer.count)
-        }
-        guard result == SHOUTERR_SUCCESS else { throw lastError(result) }
+        })
     }
 
     // Overload for callers holding a plain [UInt8]. It can't route through
@@ -248,10 +265,9 @@ public final class ShoutConnection {
     // would make the closure throwing (see the note there) -- so it repeats
     // the small marshalling itself.
     public func send(_ data: [UInt8]) throws(ShoutError) {
-        let result = data.withUnsafeBufferPointer { buffer in
+        try checked(data.withUnsafeBufferPointer { buffer in
             shout_send(handle, buffer.baseAddress, buffer.count)
-        }
-        guard result == SHOUTERR_SUCCESS else { throw lastError(result) }
+        })
     }
 
     // shout_send_raw() skips shout_send()'s format-specific timing parsing --
@@ -292,7 +308,6 @@ public final class ShoutConnection {
     // verified experimentally: calling this before open() has succeeded
     // segfaults inside libshout itself -- only call this on an open connection.
     public func setMetadataUTF8(_ metadata: ShoutMetadata) throws(ShoutError) {
-        let result = shout_set_metadata_utf8(handle, metadata.handle)
-        guard result == SHOUTERR_SUCCESS else { throw lastError(result) }
+        try checked(shout_set_metadata_utf8(handle, metadata.handle))
     }
 }

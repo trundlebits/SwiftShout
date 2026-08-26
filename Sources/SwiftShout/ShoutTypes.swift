@@ -86,7 +86,7 @@ public struct BlockingMode: RawRepresentable, Equatable, Sendable {
 }
 
 // Wraps SHOUT_META_xxxx, the keys accepted by shout_get/set_meta().
-public struct MetaKey: RawRepresentable, Equatable, Sendable {
+public struct MetaKey: RawRepresentable, Hashable, Sendable {
     public let rawValue: String
 
     public init(rawValue: String) {
@@ -103,7 +103,7 @@ public struct MetaKey: RawRepresentable, Equatable, Sendable {
 }
 
 // Wraps SHOUT_AI_xxxx, the keys accepted by shout_get/set_audio_info().
-public struct AudioInfoKey: RawRepresentable, Equatable, Sendable {
+public struct AudioInfoKey: RawRepresentable, Hashable, Sendable {
     public let rawValue: String
 
     public init(rawValue: String) {
