@@ -34,7 +34,6 @@ swift test --filter InitSwiftShout   # run a single test by name
 ## Usage
 
 ```swift
-import CShout      // for SHOUTERR_* return codes
 import SwiftShout
 
 print("libshout \(SwiftShout.libshoutVersion)")
@@ -50,25 +49,34 @@ connection.setPassword("hackme")
 connection.setMount("/stream")
 connection.setContentFormat(format: .mp3, usage: .audio)
 
-guard connection.open() == SHOUTERR_SUCCESS else {
-    fatalError(connection.errorDescription)
-}
+do {
+    try connection.open()
 
-let mp3Frame: [UInt8] = /* ... */ []
-_ = connection.send(mp3Frame)
+    let mp3Frame: [UInt8] = /* ... */ []
+    try connection.send(mp3Frame)
 
-if let metadata = ShoutMetadata() {
-    _ = metadata.add(name: "song", value: "Artist - Track")
-    _ = connection.setMetadataUTF8(metadata)
+    if let metadata = ShoutMetadata() {
+        try metadata.add(name: "song", value: "Artist - Track")
+        try connection.setMetadataUTF8(metadata)
+    }
+} catch let error as ShoutError {
+    fatalError("stream failed: \(error)")   // e.g. "Couldn't connect to server"
 }
 
 connection.close()
 ```
 
 Every setter returns the underlying `SHOUTERR_*` code from libshout
-(most are `@discardableResult`); `open()`, `send(_:)`, and
-`sendRaw(_:)` are not, since ignoring their failures is the kind of
-bug libshout's own `warn_unused_result` attribute exists to catch.
+and is `@discardableResult` -- libshout doesn't mark the setters
+`warn_unused_result`, and ignoring a stored-parameter status is
+usually harmless. The actions it *does* mark `warn_unused_result` --
+`open()`, `send(_:)`, `sendRaw(_:)`, `setMetadataUTF8(_:)`, and
+`ShoutMetadata.add(name:value:)` -- instead throw `ShoutError`
+(a typed `throws(ShoutError)`), which pairs the `SHOUTERR_*` `Code`
+with the description libshout produced for it. `sendRaw(_:)` still
+returns the byte count it wrote. In nonblocking mode, a thrown
+`ShoutError` whose `code` is `.busy` or `.retry` means "call again",
+not a hard failure.
 
 Settings that libshout expresses as raw integer or string constants
 (`SHOUT_TLS_*`, `SHOUT_PROTOCOL_*`, `SHOUT_FORMAT_*`/`SHOUT_USAGE_*`,
@@ -100,6 +108,9 @@ Settings that libshout expresses as raw integer or string constants
   meta (`SHOUT_META_*`) set on `ShoutConnection` itself.
 - `Sources/SwiftShout/ShoutTypes.swift` -- typed wrappers around
   libshout's `SHOUT_*` constant groups.
+- `Sources/SwiftShout/ShoutError.swift` -- `ShoutError`, the typed
+  error thrown by the `warn_unused_result` actions; wraps a
+  `SHOUTERR_*` `Code` and libshout's message string.
 - `Tests/SwiftShoutTests/` -- uses the Swift Testing framework
   (`import Testing`, `@Test` macro), not XCTest. Tests that need a
   live connection point at an unreachable local port rather than a

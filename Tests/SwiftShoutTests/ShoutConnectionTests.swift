@@ -9,7 +9,7 @@ import CShout
     connection.setPort(1)
     connection.setMount("/test")
     connection.setContentFormat(format: .ogg, usage: .audio)
-    _ = connection.open()
+    #expect(throws: ShoutError.self) { try connection.open() }
 
     #expect(connection.errorCode != SHOUTERR_SUCCESS)
     #expect(connection.errorDescription.isEmpty == false)
@@ -50,7 +50,7 @@ import CShout
     connection.setMount("/test")
     connection.setContentFormat(format: .ogg, usage: .audio)
 
-    #expect(connection.open() != SHOUTERR_SUCCESS)
+    #expect(throws: ShoutError.self) { try connection.open() }
     #expect(connection.isConnected == false)
     #expect(connection.close() != SHOUTERR_SUCCESS)
 }
@@ -59,15 +59,16 @@ import CShout
     shout_init()
     let connection = try #require(ShoutConnection())
     let data: [UInt8] = [0, 1, 2, 3]
-    let result = data.withUnsafeBufferPointer { connection.sendRaw($0.span) }
-    #expect(result < 0)
+    #expect(throws: ShoutError.self) {
+        try data.withUnsafeBufferPointer { try connection.sendRaw($0.span) }
+    }
 }
 
 @Test func SendRawUInt8ArrayOverloadFailsWhenUnconnected() async throws {
     shout_init()
     let connection = try #require(ShoutConnection())
     let data: [UInt8] = [0, 1, 2, 3]
-    #expect(connection.sendRaw(data) < 0)
+    #expect(throws: ShoutError.self) { try connection.sendRaw(data) }
 }
 
 @Test func SendSyncAndQueueIntrospectionWhenUnconnected() async throws {
@@ -77,10 +78,11 @@ import CShout
     // Like OpenFailsWithoutReachableServer, this exercises the wrapper's
     // plumbing (byte marshaling through Span, sync/queue introspection)
     // without needing a live Icecast server -- sending on an unconnected
-    // handle should fail, not crash.
+    // handle should throw, not crash.
     let data: [UInt8] = [0, 1, 2, 3]
-    let result = data.withUnsafeBufferPointer { connection.send($0.span) }
-    #expect(result != SHOUTERR_SUCCESS)
+    #expect(throws: ShoutError.self) {
+        try data.withUnsafeBufferPointer { try connection.send($0.span) }
+    }
 
     connection.sync()
     _ = connection.queueLength
@@ -91,7 +93,7 @@ import CShout
     shout_init()
     let connection = try #require(ShoutConnection())
     let data: [UInt8] = [0, 1, 2, 3]
-    #expect(connection.send(data) != SHOUTERR_SUCCESS)
+    #expect(throws: ShoutError.self) { try connection.send(data) }
 }
 
 @Test func SetAndGetAgent() async throws {

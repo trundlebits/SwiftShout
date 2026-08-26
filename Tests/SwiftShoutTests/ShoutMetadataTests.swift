@@ -5,27 +5,27 @@ import CShout
 @Test func AddMetadataEntry() async throws {
     shout_init()
     let metadata = try #require(ShoutMetadata())
-    #expect(metadata.add(name: "song", value: "Test Track") == SHOUTERR_SUCCESS)
+    try metadata.add(name: "song", value: "Test Track")
 }
 
 @Test func AddMetadataEntryOverwritesPreviousValue() async throws {
     shout_init()
     let metadata = try #require(ShoutMetadata())
-    #expect(metadata.add(name: "song", value: "First Track") == SHOUTERR_SUCCESS)
-    #expect(metadata.add(name: "song", value: "Second Track") == SHOUTERR_SUCCESS)
+    try metadata.add(name: "song", value: "First Track")
+    try metadata.add(name: "song", value: "Second Track")
 }
 
 @Test func AddMetadataEntryWithEmptyValue() async throws {
     shout_init()
     let metadata = try #require(ShoutMetadata())
-    #expect(metadata.add(name: "song", value: "") == SHOUTERR_SUCCESS)
+    try metadata.add(name: "song", value: "")
 }
 
 @Test func AddMultipleMetadataEntries() async throws {
     shout_init()
     let metadata = try #require(ShoutMetadata())
-    #expect(metadata.add(name: "song", value: "Test Track") == SHOUTERR_SUCCESS)
-    #expect(metadata.add(name: "title", value: "Test Title") == SHOUTERR_SUCCESS)
+    try metadata.add(name: "song", value: "Test Track")
+    try metadata.add(name: "title", value: "Test Title")
 }
 
 @Test func InitShoutMetadata() async throws {
@@ -38,6 +38,6 @@ import CShout
     shout_init()
     let first = try #require(ShoutMetadata())
     let second = try #require(ShoutMetadata())
-    #expect(first.add(name: "song", value: "First Track") == SHOUTERR_SUCCESS)
-    #expect(second.add(name: "song", value: "Second Track") == SHOUTERR_SUCCESS)
+    try first.add(name: "song", value: "First Track")
+    try second.add(name: "song", value: "Second Track")
 }
