@@ -4,13 +4,16 @@ A Swift wrapper around [libshout](https://gitlab.xiph.org/xiph/icecast-libshout)
 the C streaming library used to source audio/video streams to an
 [Icecast](https://icecast.org) server.
 
-This is a very early-stage package. `ShoutConnection` wraps
-libshout's connection handle (`shout_t`) and covers essentially all of
-its non-deprecated API; `ShoutMetadata` wraps in-stream metadata
-updates for MP3/AAC streams. There is no support yet for the two
-advanced, TLS-peer-certificate-verification entry points
-(`shout_control`, `shout_set_callback`) -- libshout itself marks both
-"Advanced. Do not use."
+This is an early-stage package. `ShoutConnection` wraps libshout's
+connection handle (`shout_t`) and covers essentially all of its
+non-deprecated API; `ShoutConfiguration` collects the pre-`open()`
+settings into one value; `ShoutStreamer` is an `actor` that streams an
+`AsyncSequence` of frames without blocking the calling task; and
+`ShoutMetadata` wraps in-stream metadata updates for MP3/AAC streams.
+There is no support yet for the two advanced,
+TLS-peer-certificate-verification entry points (`shout_control`,
+`shout_set_callback`) -- libshout itself marks both "Advanced. Do not
+use."
 
 ## Prerequisites
 
@@ -65,6 +68,26 @@ do {
 }
 ```
 
+### Streaming without blocking
+
+`ShoutStreamer` is an `actor` that drives a connection in nonblocking
+mode and paces sends with `shout_delay()` + `Task.sleep` instead of the
+thread-blocking `shout_sync()`. Hand it an `AsyncSequence` of `[UInt8]`
+frames:
+
+```swift
+let streamer = try ShoutStreamer(configuration: configuration)
+
+try await streamer.stream(mp3Frames)          // some AsyncSequence<[UInt8]>
+// ...or, from another task while streaming:
+try await streamer.updateMetadata(["song": "Artist - Track"])
+```
+
+`stream(_:)` opens the connection, sends each frame paced to real time,
+and closes on completion, error, or task cancellation. It owns the
+non-`Sendable` `ShoutConnection`, so the `actor` is what makes the whole
+thing `Sendable`.
+
 `ShoutConfiguration` is a `Sendable`, `Equatable` value holding every
 pre-`open()` setting; `ShoutConnection(configuration:)` (or
 `config.apply(to:)` on an existing connection) applies it in one step,
@@ -114,6 +137,12 @@ Settings that libshout expresses as raw integer or string constants
   a `Sendable`/`Equatable` value holding every pre-`open()` setting;
   `apply(to:)` drives the individual setters, and
   `ShoutConnection(configuration:)` builds a connection from one.
+- `Sources/SwiftShout/ShoutStreamer.swift` -- `ShoutStreamer`, an
+  `actor` that owns an opened connection and streams an
+  `AsyncSequence` of frames to it, pacing with `shout_delay()` +
+  `Task.sleep` (nonblocking mode) rather than blocking on
+  `shout_sync()`. `ShoutStreamerError` covers its non-libshout
+  failure cases.
 - `Sources/SwiftShout/ShoutTypes.swift` -- typed wrappers around
   libshout's `SHOUT_*` constant groups.
 - `Sources/SwiftShout/ShoutError.swift` -- `ShoutError`, the typed
