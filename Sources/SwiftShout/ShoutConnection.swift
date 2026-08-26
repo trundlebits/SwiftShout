@@ -37,6 +37,14 @@ public final class ShoutConnection {
         shout_get_connected(handle) == SHOUTERR_CONNECTED
     }
 
+    // shout_get_connected(): `.connected` once open() has fully established,
+    // `.busy` while a nonblocking connect is still handshaking, or another
+    // SHOUTERR_* code on failure. The poll target after a nonblocking open()
+    // returns `.busy`.
+    public var connectionStatus: ShoutError.Code {
+        ShoutError.Code(rawValue: shout_get_connected(handle))
+    }
+
     public var host: String? {
         shout_get_host(handle).map { String(cString: $0) }
     }
