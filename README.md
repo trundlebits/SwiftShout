@@ -2,11 +2,15 @@
 
 A Swift wrapper around [libshout](https://gitlab.xiph.org/xiph/icecast-libshout), the C streaming library used to "stream" audio/video data to an [Icecast](https://icecast.org) (preferred) or Shoutcast server.
 
+## License
+
+This project is licensed under the Apache v2 software license.
+
+Please note that the upstream package, the [Icecast server](https://www.icecast.org/), is licensed under the GNU GPLv2.  Distributing both projects together would most likely cause this project to be re-licensed under the GNU GPLv2.  We are not lawyers, consult a lawyer if any of this concerns you at all.
+
 ## Prerequisites
 
-Building requires the `libshout` C library and its pkg-config file to
-be installed on the host, since `CShout` is a system library target
-that resolves via `pkgConfig: "shout"`:
+Building requires the `libshout` C library and its pkg-config file to be installed on the host, since `CShout` is a system library target that resolves via `pkgConfig: "shout"`:
 
 ```bash
 brew install libshout       # macOS
