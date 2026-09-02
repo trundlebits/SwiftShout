@@ -1,19 +1,6 @@
 # SwiftShout
 
-A Swift wrapper around [libshout](https://gitlab.xiph.org/xiph/icecast-libshout),
-the C streaming library used to source audio/video streams to an
-[Icecast](https://icecast.org) server.
-
-This is an early-stage package. `ShoutConnection` wraps libshout's
-connection handle (`shout_t`) and covers essentially all of its
-non-deprecated API; `ShoutConfiguration` collects the pre-`open()`
-settings into one value; `ShoutStreamer` is an `actor` that streams an
-`AsyncSequence` of frames without blocking the calling task; and
-`ShoutMetadata` wraps in-stream metadata updates for MP3/AAC streams.
-There is no support yet for the two advanced,
-TLS-peer-certificate-verification entry points (`shout_control`,
-`shout_set_callback`) -- libshout itself marks both "Advanced. Do not
-use."
+A Swift wrapper around [libshout](https://gitlab.xiph.org/xiph/icecast-libshout), the C streaming library used to "stream" audio/video data to an [Icecast](https://icecast.org) (preferred) or Shoutcast server.
 
 ## Prerequisites
 
@@ -56,9 +43,12 @@ do {
 
     try connection.open()
 
+    // read in a chunk of data as 'mp3frame'
     let mp3Frame: [UInt8] = /* ... */ []
+    // send it to the Icecast server...
     try connection.send(mp3Frame)
 
+    // if the file has metadata (artist/track title), update it on the Icecast server
     if let metadata = ShoutMetadata() {
         try metadata.add(name: "song", value: "Artist - Track")
         try connection.setMetadataUTF8(metadata)
@@ -67,6 +57,13 @@ do {
     fatalError("stream failed: \(error)")   // e.g. "Couldn't connect to server"
 }
 ```
+
+## Related Projects
+
+* _SimpleShout_, the simplest example of streaming to a Shoutcast/Icecast server using this _SwiftShout_ framework.  Tested exclusively with Icecast only.  This example project should always stay in sync with the public interfaces of _SwiftShout_; in other words, it should always "just work (tm)".
+* _KAOS_Streamer_, a more complex streaming client, with suppport for file lists of various types (plain text, databases).
+
+## Development & Framework Internals
 
 ### Streaming without blocking
 
@@ -112,7 +109,9 @@ Settings that libshout expresses as raw integer or string constants
 `BlockingMode`, `MetaKey`, `AudioInfoKey` -- so call sites use
 `.disabled`, `.icy`, `.ogg`, `.name`, etc. instead of magic numbers.
 
-## Architecture
+### Framework Architecture
+
+`ShoutConnection` wraps libshout'sconnection handle (`shout_t`) and covers essentially all of its non-deprecated API; `ShoutConfiguration` collects the pre-`open()` settings into one value; `ShoutStreamer` is an `actor` that streams an `AsyncSequence` of frames without blocking the calling task; and `ShoutMetadata` wraps in-stream metadata updates for MP3/AAC streams.  There is no support yet for the two advanced, TLS-peer-certificate-verification entry points (`shout_control`, `shout_set_callback`) -- libshout itself marks both "Advanced. Do not use."
 
 - `Sources/CShout/` -- a `.systemLibrary` target that exposes the C
   `libshout` headers to Swift. `module.modulemap` maps `shout.h`
@@ -157,7 +156,7 @@ Settings that libshout expresses as raw integer or string constants
   targets Swift 6 language mode, so strict concurrency checking
   applies to any new code.
 
-## Constraints
+### Project Constraints
 
 - Prefer `Span`/`MutableSpan` over `UnsafePointer`/`UnsafeMutablePointer`
   for new code.
