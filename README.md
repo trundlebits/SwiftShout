@@ -65,7 +65,6 @@ do {
 ## Related Projects
 
 * _SimpleShout_, the simplest example of streaming to a Shoutcast/Icecast server using this _SwiftShout_ framework.  Tested exclusively with Icecast only.  This example project should always stay in sync with the public interfaces of _SwiftShout_; in other words, it should always "just work (tm)".
-* _KAOS_Streamer_, a more complex streaming client, with suppport for file lists of various types (plain text, databases).
 
 ## Development & Framework Internals
 
