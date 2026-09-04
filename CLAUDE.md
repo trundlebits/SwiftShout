@@ -31,6 +31,15 @@ swift test --filter InitSwiftShout   # run a single test by name
 
 There is no linter configured in this repo.
 
+`swift build` and `swift test` each print `warning: prohibited flag(s):
+-D_THREAD_SAFE` twice. This is expected and is not fixable from inside
+this package: the flag comes from the `Cflags:` line of libshout's own
+`shout.pc`, and SwiftPM only accepts `-I`/`-L`/`-l` out of a pkg-config
+file, warning about and dropping the rest. It is emitted while SwiftPM
+parses that `.pc` file, upstream of both `Package.swift` and
+`module.modulemap`, so neither can silence it. Do not propose module-map
+or manifest changes to suppress it; see README.md.
+
 ## Architecture
 
 - `Sources/CShout/` — a `.systemLibrary` target that exposes the C
