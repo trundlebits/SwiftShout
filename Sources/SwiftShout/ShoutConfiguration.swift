@@ -1,5 +1,3 @@
-import CShout
-
 /// A value describing everything a `ShoutConnection` needs before `open()`:
 /// one `Sendable`, `Equatable` struct in place of a dozen-plus individual
 /// setter calls.
