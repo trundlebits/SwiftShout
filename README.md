@@ -31,6 +31,23 @@ swift test         # run the test suite (Swift Testing, not XCTest)
 swift test --filter InitSwiftShout   # run a single test by name
 ```
 
+### The `-D_THREAD_SAFE` warning is expected
+
+Both commands print this twice:
+
+```
+warning: prohibited flag(s): -D_THREAD_SAFE
+```
+
+It is harmless, and there is nothing to fix in this package. `libshout`
+ships that flag in the `Cflags:` line of its own `shout.pc`, and SwiftPM
+accepts only `-I`/`-L`/`-l` flags out of a `pkg-config` file -- it warns
+about anything else and then drops it. The warning is emitted while
+SwiftPM parses a file the `libshout` packager owns, which is upstream of
+both `Package.swift` and `Sources/CShout/module.modulemap`, so nothing
+here can suppress it. `libshout` does not need `-D_THREAD_SAFE` on a
+current Darwin or glibc toolchain, so dropping it changes nothing.
+
 ## Usage
 
 ```swift
