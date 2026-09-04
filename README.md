@@ -10,11 +10,17 @@ Please note that the upstream package, the [Icecast server](https://www.icecast.
 
 ## Prerequisites
 
-Building requires the `libshout` C library and its pkg-config file to be installed on the host, since `CShout` is a system library target that resolves via `pkgConfig: "shout"`:
+- Swift 6.x toolchain.  This project has been tested with Swift 6.x on both macOS and Linux.
+- [`libshout`](https://icecast.org/) and its `pkg-config` file
 
+To install `libshout` on macOS:
 ```bash
-brew install libshout       # macOS
-# or: apt install libshout-dev   # Linux
+brew install libshout
+```
+
+And for Debian/Ubuntu:
+```bash
+apt install libshout-dev
 ```
 
 ## Building and testing
