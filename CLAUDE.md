@@ -43,10 +43,13 @@ or manifest changes to suppress it; see README.md.
 ## Architecture
 
 - `Sources/CShout/` — a `.systemLibrary` target that exposes the C
-  `libshout` headers to Swift. `module.modulemap` maps `shout.h` (vendored
-  from upstream libshout, unmodified) into the `CShout` module and links
-  `libshout`. Package resolution of the library itself happens via
-  pkg-config (see `Package.swift`), not via the vendored header.
+  `libshout` headers to Swift. `module.modulemap` maps `shout.h` into the
+  `CShout` module and links `libshout`. `Sources/CShout/shout.h` is a
+  one-line trampoline (`#include <shout/shout.h>`), not a vendored copy --
+  it resolves through the `-I` search path `pkgConfig: "shout"` supplies
+  (see `Package.swift`), so it always reads whatever libshout is actually
+  installed rather than a copy that could drift or duplicate libshout's
+  LGPL-licensed source into this repo.
 - `Sources/SwiftShout/SwiftShout.swift` — the actual Swift wrapper target,
   depends on `CShout` and calls the C API directly (e.g.
   `shout_init()`, `shout_version()`). Interop with the C API leans on

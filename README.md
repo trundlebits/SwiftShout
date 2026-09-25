@@ -140,11 +140,14 @@ Settings that libshout expresses as raw integer or string constants
 `ShoutConnection` wraps libshout'sconnection handle (`shout_t`) and covers essentially all of its non-deprecated API; `ShoutConfiguration` collects the pre-`open()` settings into one value; `ShoutStreamer` is an `actor` that streams an `AsyncSequence` of frames without blocking the calling task; and `ShoutMetadata` wraps in-stream metadata updates for MP3/AAC streams.  There is no support yet for the two advanced, TLS-peer-certificate-verification entry points (`shout_control`, `shout_set_callback`) -- libshout itself marks both "Advanced. Do not use."
 
 - `Sources/CShout/` -- a `.systemLibrary` target that exposes the C
-  `libshout` headers to Swift. `module.modulemap` maps `shout.h`
-  (vendored from upstream libshout, unmodified) into the `CShout`
-  module and links `libshout`. Package resolution of the library
-  itself happens via pkg-config (see `Package.swift`), not via the
-  vendored header.
+  `libshout` headers to Swift. `module.modulemap` maps `shout.h` into
+  the `CShout` module and links `libshout`. `Sources/CShout/shout.h`
+  is a one-line trampoline (`#include <shout/shout.h>`), not a
+  vendored copy -- it resolves through the `-I` search path
+  `pkgConfig: "shout"` supplies (see `Package.swift`), so it always
+  reads whatever libshout is actually installed rather than a copy
+  that could drift or duplicate libshout's LGPL-licensed source into
+  this repo.
 - `Sources/SwiftShout/SwiftShout.swift` -- calls `shout_init()` on
   construction and `shout_shutdown()` via a static method; these are
   process-global, not tied to any one connection.
